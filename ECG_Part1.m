@@ -1,4 +1,4 @@
-%% load that data
+%% load the data
 ecg_data = readtable("ECG_A.txt");
 
 % Create time vector
@@ -11,14 +11,11 @@ end_value = time_length_ecg / fs;
 time_vector = linspace(start_value, end_value, time_length_ecg);
 
 % Extract all leads from the data
-lead_1 = ecg_data.LI; 
-lead_3 = ecg_data.LIII;
+lead_1 = ecg_data.LI;
 lead_2 = ecg_data.LII_Calc__;
+lead_3 = ecg_data.LIII;
 
 %% Plots of Raw Data
-
-%  lead_3_new = lead_3 .* -1 ;
-% Plot the ECG Before Filter
 
 % Put all leads in 1 vector to match the plot function
 leads ={lead_1, lead_2, lead_3};
@@ -52,12 +49,12 @@ t_f = (0:length(time_vector)-1) / fs;
 % Put all data in 1 vector to match the plot function
 leads_filtered = {lead_1_filter, lead_2_filter, lead_3_filter};
 
-title_text_fil = "Lead %i of ECG Filtered";
+title_text_filtered = "Lead %i of ECG Filtered";
 
 figure;
 for sub_num=1:3
     plot_ecg_data( ...
-        leads_filtered, t_f, title_text_fil, sub_num, ...
+        leads_filtered, t_f, title_text_filtered, sub_num, ...
         'Time [sec]', 'Amplitude [mV]', 1)
 end
 
@@ -74,7 +71,7 @@ fft_filtered_lead3 = fft(lead_3_filter);
 
 % Create frequency axis
 n = height(ecg_data);
-frequencies = 500/n * ((-(n-1)/2):((n-1)/2));
+frequencies = fs/n * ((-(n-1)/2):((n-1)/2));
 
 % Put all data in 1 vector to match the plot function
 fft_leads = {...
@@ -87,21 +84,21 @@ fft_filtered_leads = {...
     abs(fftshift(fft_filtered_lead2)),...
     abs(fftshift(fft_filtered_lead3))};
 
-title_text_fft_unfil = "Lead %i of ECG Unfiltered in the Frequency axis";
+title_text_fft_unfilterd = "Lead %i of ECG Unfiltered in the Frequency axis";
 % Plot Unfiltered
 figure;
 for sub_num=1:3
     plot_ecg_data( ...
-        fft_leads, frequencies, title_text_fft_unfil, sub_num, ...
+        fft_leads, frequencies, title_text_fft_unfilterd, sub_num, ...
         'Frequency [Hz]', 'Amplitude [mV]', 1)
 end
 
 % Plot filtered
 figure
-title_text_fft_fil = "Lead %i of ECG Filtered in the Frequency axis";
+title_text_fft_filtered = "Lead %i of ECG Filtered in the Frequency axis";
 for sub_num=1:3
     plot_ecg_data( ...
-        fft_filtered_leads, frequencies, title_text_fft_fil, sub_num, ...
+        fft_filtered_leads, frequencies, title_text_fft_filtered, sub_num, ...
         'Frequency [Hz]', 'Amplitude [mV]', 1)
 end
 
@@ -115,7 +112,7 @@ end
 [seating_data, seating_time_vector]  = seperate_position_data( ...
     0, 30, lead_2_filter, time_vector, fs);
 
-% find R waves for the seating duration
+% Find R waves for the seating duration
 qrs_seating = qrs_detection_AF2(seating_data);
 qrs_seating = qrs_seating .* seating_data;
 
@@ -125,18 +122,18 @@ qrs_seating = qrs_seating .* seating_data;
 [standing_data, standing_time_vector]  = seperate_position_data( ...
     30, 50, lead_2_filter, time_vector, fs);
 
-% find R waves for the standing duration
+% Find R waves for the standing duration
 qrs_standing = qrs_detection_AF2(standing_data);
 qrs_standing = qrs_standing .* standing_data;
 
-%% Standing with heavy brething
-% Standing with heavy brething recording was 10 sec (50 sec - 60 sec)
+%% Standing with heavy breathing
+% Standing with heavy breathing recording was 10 sec (50 sec - 60 sec)
 
 [standing_heavy_breath_data, standing_heavy_breath_time_vector]  = ...
 seperate_position_data( ...
 50, time_vector(end), lead_2_filter, time_vector, fs);
 
-% find R waves for the seating duration
+% Find R waves for the standing with heavy breathing duration
 qrs_standing_heavy_breath = qrs_detection_AF2(standing_heavy_breath_data);
 qrs_standing_heavy_breath =... 
     qrs_standing_heavy_breath .* standing_heavy_breath_data;
@@ -170,10 +167,9 @@ seating_mean_hr = mean(seating_hr);
 standing_mean_hr = mean(standing_hr);
 standing_heavy_breathing_mean_hr = mean(standing_heavy_breathing_hr);
 
-std_seating = std(seating_hr);
-std_standing = std(standing_hr);
-std_standing_heavy_breathing = std(standing_heavy_breathing_hr);
-
+seating_std = std(seating_hr);
+standing_std = std(standing_hr);
+standing_heavy_breathing_std = std(standing_heavy_breathing_hr);
 
 %% t-test for Standing Part
 
